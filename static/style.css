@@ -5,18 +5,91 @@
 }
 
 body {
-    display: flex;
     height: 100vh;
     overflow: hidden;
     font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
     background: #000;
     user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    touch-action: manipulation;
+}
+
+/* ========== Panel Toggle Button ========== */
+#panel-toggle {
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    z-index: 300;
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: rgba(13, 27, 42, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 0;
+    transition: background 0.2s, left 0.3s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+#panel-toggle:hover {
+    background: rgba(27, 40, 56, 0.92);
+}
+
+#panel-toggle .bar {
+    width: 20px;
+    height: 2px;
+    background: #d4dce8;
+    border-radius: 1px;
+    transition: transform 0.3s, opacity 0.2s;
+    pointer-events: none;
+}
+
+body.panel-open #panel-toggle {
+    left: 354px;
+}
+
+body.panel-open #panel-toggle .bar:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+}
+
+body.panel-open #panel-toggle .bar:nth-child(2) {
+    opacity: 0;
+}
+
+body.panel-open #panel-toggle .bar:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+}
+
+/* ========== Overlay Backdrop ========== */
+#panel-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 150;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+#panel-overlay.visible {
+    opacity: 1;
+    pointer-events: auto;
 }
 
 /* ========== Left Panel ========== */
 #left-panel {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
     width: 340px;
-    min-width: 340px;
+    max-width: 85vw;
     background: linear-gradient(180deg, #0d1b2a 0%, #1b2838 100%);
     color: #d4dce8;
     padding: 24px 20px;
@@ -24,8 +97,14 @@ body {
     display: flex;
     flex-direction: column;
     gap: 18px;
-    z-index: 100;
+    z-index: 200;
     box-shadow: 2px 0 20px rgba(0, 0, 0, 0.5);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+}
+
+#left-panel.open {
+    transform: translateX(0);
 }
 
 #title {
@@ -193,7 +272,8 @@ body {
 
 /* ========== Right Panel ========== */
 #right-panel {
-    flex: 1;
+    width: 100%;
+    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -315,4 +395,58 @@ body {
 #left-panel::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.1);
     border-radius: 2px;
+}
+
+/* ========== Mobile: small screens ========== */
+@media (max-width: 768px) {
+    #left-panel {
+        width: 300px;
+        max-width: 82vw;
+        padding: 18px 14px;
+        gap: 12px;
+    }
+
+    #title {
+        font-size: 22px;
+    }
+
+    #subtitle {
+        font-size: 11px;
+    }
+
+    #panel-toggle {
+        top: 10px;
+        left: 10px;
+        width: 38px;
+        height: 38px;
+    }
+
+    body.panel-open #panel-toggle {
+        left: 314px;
+    }
+
+    .placed-animal .delete-btn {
+        display: block;
+        width: 24px;
+        height: 24px;
+        font-size: 14px;
+        line-height: 24px;
+        top: -10px;
+        right: -10px;
+    }
+
+    .placed-animal-inner img {
+        width: 44px;
+        height: 44px;
+    }
+
+    .animal-thumb {
+        width: 40px;
+        height: 40px;
+    }
+
+    .interval-select {
+        font-size: 14px;
+        padding: 6px 8px;
+    }
 }

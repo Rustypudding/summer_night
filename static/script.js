@@ -76,11 +76,59 @@ let bgmType = "none";
 const mapContainer = document.getElementById("map-container");
 const placedLayer = document.getElementById("placed-animals-layer");
 const animalList = document.getElementById("animal-list");
+const leftPanel = document.getElementById("left-panel");
+const panelToggle = document.getElementById("panel-toggle");
+const panelOverlay = document.getElementById("panel-overlay");
 const bgmRadios = document.getElementsByName("bgm");
 const masterVolumeSlider = document.getElementById("master-volume");
 const volumeLabel = document.getElementById("volume-label");
 const bgmVolumeSlider = document.getElementById("bgm-volume");
 const bgmVolumeLabel = document.getElementById("bgm-volume-label");
+
+// ============================================================
+// Panel toggle
+// ============================================================
+function openPanel() {
+    leftPanel.classList.add("open");
+    panelOverlay.classList.add("visible");
+    document.body.classList.add("panel-open");
+}
+
+function closePanel() {
+    leftPanel.classList.remove("open");
+    panelOverlay.classList.remove("visible");
+    document.body.classList.remove("panel-open");
+}
+
+function togglePanel() {
+    if (leftPanel.classList.contains("open")) {
+        closePanel();
+    } else {
+        openPanel();
+    }
+}
+
+panelToggle.addEventListener("click", (e) => {
+    e.stopPropagation();
+    togglePanel();
+});
+
+panelOverlay.addEventListener("click", () => {
+    closePanel();
+});
+
+// ============================================================
+// Event helper: extract position from mouse or touch event
+// ============================================================
+function getEventPos(e) {
+    if (e.touches && e.touches.length > 0) {
+        return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    }
+    if (e.changedTouches && e.changedTouches.length > 0) {
+        return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
+    }
+    return { x: e.clientX, y: e.clientY };
+}
 
 // ============================================================
 // Preload: layer canvases + animal images
@@ -198,10 +246,13 @@ function buildAnimalList() {
         `;
 
         const header = entry.querySelector(".animal-entry-header");
-        header.addEventListener("mousedown", (e) => {
+        const onDragStart = (e) => {
             e.preventDefault();
-            startDragFromList(key, e.clientX, e.clientY);
-        });
+            const pos = getEventPos(e);
+            startDragFromList(key, pos.x, pos.y);
+        };
+        header.addEventListener("mousedown", onDragStart);
+        header.addEventListener("touchstart", onDragStart, { passive: false });
 
         header.addEventListener("dblclick", () => {
             placeAtRandomPosition(key);
@@ -288,6 +339,9 @@ function startDragFromList(animalType, clientX, clientY) {
     const count = placedAnimals.filter((a) => a.type === animalType).length;
     if (count >= ANIMALS[animalType].maxCount) return;
 
+    // Immediately close panel so it doesn't block the map
+    closePanel();
+
     const mapRect = mapContainer.getBoundingClientRect();
     const mapX = clientX - mapRect.left;
     const mapY = clientY - mapRect.top;
@@ -305,6 +359,9 @@ function startDragFromList(animalType, clientX, clientY) {
 
     document.addEventListener("mousemove", onDragMove);
     document.addEventListener("mouseup", onDragUp);
+    document.addEventListener("touchmove", onDragMove, { passive: false });
+    document.addEventListener("touchend", onDragUp);
+    document.addEventListener("touchcancel", onDragUp);
 }
 
 function startDragFromMap(placedId, clientX, clientY) {
@@ -348,26 +405,33 @@ function startDragFromMap(placedId, clientX, clientY) {
 
     document.addEventListener("mousemove", onDragMove);
     document.addEventListener("mouseup", onDragUp);
+    document.addEventListener("touchmove", onDragMove, { passive: false });
+    document.addEventListener("touchend", onDragUp);
+    document.addEventListener("touchcancel", onDragUp);
 }
 
 function onDragMove(e) {
     if (!dragInfo) return;
-    positionGhost(e.clientX, e.clientY);
-    syncGhostColor(e.clientX, e.clientY);
+    e.preventDefault(); // prevent scrolling on touch devices
+    const pos = getEventPos(e);
+    positionGhost(pos.x, pos.y);
+    syncGhostColor(pos.x, pos.y);
 }
 
 function onDragUp(e) {
     if (!dragInfo) return;
 
+    const pos = getEventPos(e);
+
     const mapRect = mapContainer.getBoundingClientRect();
-    const mapX = e.clientX - mapRect.left;
-    const mapY = e.clientY - mapRect.top;
+    const mapX = pos.x - mapRect.left;
+    const mapY = pos.y - mapRect.top;
 
     const overMap =
-        e.clientX >= mapRect.left &&
-        e.clientX <= mapRect.right &&
-        e.clientY >= mapRect.top &&
-        e.clientY <= mapRect.bottom;
+        pos.x >= mapRect.left &&
+        pos.x <= mapRect.right &&
+        pos.y >= mapRect.top &&
+        pos.y <= mapRect.bottom;
 
     if (overMap && isPositionValid(dragInfo.animalType, mapX, mapY)) {
         if (dragInfo.sourcePlacedId !== null) {
@@ -391,6 +455,9 @@ function cleanupDrag() {
     dragInfo = null;
     document.removeEventListener("mousemove", onDragMove);
     document.removeEventListener("mouseup", onDragUp);
+    document.removeEventListener("touchmove", onDragMove);
+    document.removeEventListener("touchend", onDragUp);
+    document.removeEventListener("touchcancel", onDragUp);
 }
 
 // ============================================================
@@ -500,12 +567,15 @@ function renderPlacedAnimal(animal) {
     });
     div.appendChild(delBtn);
 
-    div.addEventListener("mousedown", (e) => {
+    const onPlacedDragStart = (e) => {
         if (e.target === delBtn) return;
         e.preventDefault();
         e.stopPropagation();
-        startDragFromMap(animal.id, e.clientX, e.clientY);
-    });
+        const pos = getEventPos(e);
+        startDragFromMap(animal.id, pos.x, pos.y);
+    };
+    div.addEventListener("mousedown", onPlacedDragStart);
+    div.addEventListener("touchstart", onPlacedDragStart, { passive: false });
 
     placedLayer.appendChild(div);
 }
