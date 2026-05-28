@@ -1,0 +1,318 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+    font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+    background: #000;
+    user-select: none;
+}
+
+/* ========== Left Panel ========== */
+#left-panel {
+    width: 340px;
+    min-width: 340px;
+    background: linear-gradient(180deg, #0d1b2a 0%, #1b2838 100%);
+    color: #d4dce8;
+    padding: 24px 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    z-index: 100;
+    box-shadow: 2px 0 20px rgba(0, 0, 0, 0.5);
+}
+
+#title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #f0e68c;
+    text-align: center;
+    letter-spacing: 4px;
+}
+
+#subtitle {
+    font-size: 13px;
+    color: #8899aa;
+    text-align: center;
+    margin-top: -8px;
+}
+
+/* ========== Animal List ========== */
+#animal-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.animal-entry {
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    padding: 10px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.animal-entry:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.animal-entry-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: grab;
+}
+
+.animal-entry-header:active {
+    cursor: grabbing;
+}
+
+.animal-entry-header.dragging-source {
+    opacity: 0.4;
+}
+
+.animal-thumb {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    object-fit: contain;
+    background: rgba(0, 0, 0, 0.3);
+    pointer-events: none;
+}
+
+.animal-info {
+    flex: 1;
+    pointer-events: none;
+}
+
+.animal-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #e8eef4;
+}
+
+.animal-count {
+    font-size: 12px;
+    color: #8899aa;
+}
+
+.interval-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.interval-label {
+    font-size: 12px;
+    color: #8899aa;
+    white-space: nowrap;
+}
+
+.interval-select {
+    flex: 1;
+    padding: 4px 6px;
+    font-size: 12px;
+    background: rgba(0, 0, 0, 0.3);
+    color: #d4dce8;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.interval-select option {
+    background: #1b2838;
+    color: #d4dce8;
+}
+
+/* ========== BGM Section ========== */
+#bgm-section h3,
+#volume-section h3,
+#bgm-volume-section h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #aabbcc;
+    margin-bottom: 8px;
+}
+
+#bgm-options {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.bgm-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #c0ccd8;
+    transition: background 0.2s;
+}
+
+.bgm-option:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.bgm-option input[type="radio"] {
+    accent-color: #f0e68c;
+}
+
+/* ========== Volume Section ========== */
+#volume-section,
+#bgm-volume-section {
+    margin-top: 4px;
+}
+
+#master-volume,
+#bgm-volume {
+    width: 100%;
+    accent-color: #f0e68c;
+}
+
+#volume-label,
+#bgm-volume-label {
+    font-size: 13px;
+    color: #8899aa;
+    display: block;
+    text-align: right;
+    margin-top: 2px;
+}
+
+/* ========== Right Panel ========== */
+#right-panel {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #0a0a0a;
+    position: relative;
+    overflow: hidden;
+}
+
+#map-container {
+    position: relative;
+    height: 100vh;
+    max-width: 100%;
+    aspect-ratio: 1773 / 2261;
+    overflow: hidden;
+}
+
+.bg-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+/* ========== Placed Animals ========== */
+#placed-animals-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.placed-animal {
+    position: absolute;
+    left: 0;
+    top: 0;
+    transform: translate(-50%, -50%);
+    pointer-events: auto;
+    cursor: move;
+}
+
+.placed-animal:hover {
+    filter: brightness(1.2);
+}
+
+.placed-animal-inner {
+    /* no default transition — .animate class enables it */
+}
+
+.placed-animal-inner.animate {
+    transition: transform 0.35s ease-out;
+}
+
+.placed-animal-inner img {
+    width: 52px;
+    height: 52px;
+    object-fit: contain;
+    display: block;
+    transition: transform 0.08s ease-out;
+}
+
+.placed-animal .delete-btn {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(200, 50, 50, 0.9);
+    color: #fff;
+    border: none;
+    font-size: 12px;
+    line-height: 20px;
+    text-align: center;
+    cursor: pointer;
+    display: none;
+    z-index: 5;
+}
+
+.placed-animal:hover .delete-btn {
+    display: block;
+}
+
+/* ========== Animal sound animation ========== */
+/* .placed-animal-inner.animate enables smooth position transition */
+/* img scaleX is set inline for direction flip */
+
+.placed-animal-inner img.bouncing {
+    animation: animal-bounce 0.35s ease-out;
+}
+
+@keyframes animal-bounce {
+    0%   { transform: translateY(0)   scale(1)    scaleX(var(--flip, 1)); }
+    20%  { transform: translateY(-16px) scale(1.22) scaleX(var(--flip, 1)); }
+    50%  { transform: translateY(-5px)  scale(0.95) scaleX(var(--flip, 1)); }
+    100% { transform: translateY(0)   scale(1)    scaleX(var(--flip, 1)); }
+}
+
+/* ========== Drag Ghost ========== */
+#drag-ghost {
+    position: fixed;
+    pointer-events: none;
+    z-index: 1000;
+    display: none;
+}
+
+/* ========== Scrollbar ========== */
+#left-panel::-webkit-scrollbar {
+    width: 4px;
+}
+
+#left-panel::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#left-panel::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+}
