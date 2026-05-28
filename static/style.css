@@ -347,25 +347,26 @@ body.panel-open #panel-toggle .bar:nth-child(3) {
     transition: transform 0.08s ease-out;
 }
 
-.placed-animal .delete-btn {
+.placed-animal-inner .delete-btn {
     position: absolute;
-    top: -8px;
-    right: -8px;
-    width: 20px;
-    height: 20px;
+    top: -10px;
+    right: -10px;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
     background: rgba(200, 50, 50, 0.9);
     color: #fff;
     border: none;
-    font-size: 12px;
-    line-height: 20px;
+    font-size: 13px;
+    line-height: 22px;
     text-align: center;
     cursor: pointer;
     display: none;
     z-index: 5;
 }
 
-.placed-animal:hover .delete-btn {
+.placed-animal:hover .placed-animal-inner .delete-btn,
+.placed-animal-inner.show-delete .delete-btn {
     display: block;
 }
 
@@ -435,16 +436,6 @@ body.panel-open #panel-toggle .bar:nth-child(3) {
 
     body.panel-open #panel-toggle {
         left: 314px;
-    }
-
-    .placed-animal .delete-btn {
-        display: block;
-        width: 24px;
-        height: 24px;
-        font-size: 14px;
-        line-height: 24px;
-        top: -10px;
-        right: -10px;
     }
 
     .placed-animal-inner img {

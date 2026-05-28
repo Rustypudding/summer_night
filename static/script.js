@@ -540,6 +540,12 @@ function placeAtRandomPosition(animalType) {
 // ============================================================
 // Render placed animal DOM
 // ============================================================
+function hideAllDeleteButtons() {
+    document.querySelectorAll(".placed-animal-inner.show-delete").forEach((el) => {
+        el.classList.remove("show-delete");
+    });
+}
+
 function renderPlacedAnimal(animal) {
     const div = document.createElement("div");
     div.className = "placed-animal";
@@ -556,7 +562,6 @@ function renderPlacedAnimal(animal) {
     img.draggable = false;
     img.style.transform = "scaleX(1)";
     inner.appendChild(img);
-    div.appendChild(inner);
 
     const delBtn = document.createElement("button");
     delBtn.className = "delete-btn";
@@ -565,17 +570,48 @@ function renderPlacedAnimal(animal) {
         e.stopPropagation();
         removeAnimal(animal.id);
     });
-    div.appendChild(delBtn);
+    inner.appendChild(delBtn);
+    div.appendChild(inner);
 
-    const onPlacedDragStart = (e) => {
+    // Tap vs drag: small movement = tap (show delete), larger = drag
+    const onPlacedPointerDown = (e) => {
         if (e.target === delBtn) return;
         e.preventDefault();
         e.stopPropagation();
+
         const pos = getEventPos(e);
-        startDragFromMap(animal.id, pos.x, pos.y);
+        const startX = pos.x;
+        const startY = pos.y;
+        let dragged = false;
+
+        const onMove = (ev) => {
+            const p = getEventPos(ev);
+            if (!dragged && (Math.abs(p.x - startX) > 5 || Math.abs(p.y - startY) > 5)) {
+                dragged = true;
+                hideAllDeleteButtons();
+                startDragFromMap(animal.id, startX, startY);
+            }
+        };
+        const onUp = () => {
+            document.removeEventListener("mousemove", onMove);
+            document.removeEventListener("touchmove", onMove);
+            document.removeEventListener("mouseup", onUp);
+            document.removeEventListener("touchend", onUp);
+            if (!dragged) {
+                const wasShown = inner.classList.contains("show-delete");
+                hideAllDeleteButtons();
+                if (!wasShown) {
+                    inner.classList.add("show-delete");
+                }
+            }
+        };
+        document.addEventListener("mousemove", onMove);
+        document.addEventListener("touchmove", onMove, { passive: false });
+        document.addEventListener("mouseup", onUp);
+        document.addEventListener("touchend", onUp);
     };
-    div.addEventListener("mousedown", onPlacedDragStart);
-    div.addEventListener("touchstart", onPlacedDragStart, { passive: false });
+    div.addEventListener("mousedown", onPlacedPointerDown);
+    div.addEventListener("touchstart", onPlacedPointerDown, { passive: false });
 
     placedLayer.appendChild(div);
 }
@@ -725,6 +761,13 @@ bgmVolumeSlider.addEventListener("input", () => {
 // ============================================================
 mapContainer.addEventListener("dragover", (e) => e.preventDefault());
 mapContainer.addEventListener("drop", (e) => e.preventDefault());
+
+// Hide delete buttons when clicking outside any placed animal
+document.addEventListener("click", (e) => {
+    if (!e.target.closest(".placed-animal")) {
+        hideAllDeleteButtons();
+    }
+});
 
 // ============================================================
 // Init
